@@ -3,7 +3,10 @@ from sqlalchemy.orm import Session
 from ..database import SessionLocal
 from ..models import Dataset, DatasetExample
 from ..config import settings
+from ..utils.openai_client import openai_client
 import logging
+import tempfile
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +20,8 @@ def generate_dataset_task(dataset_id: str, attribute_definition: str):
         attribute_definition: Semantic attribute definition
     """
     db = SessionLocal()
+    dataset = None
+
     try:
         dataset = db.query(Dataset).filter(Dataset.id == dataset_id).first()
         if not dataset:
@@ -26,26 +31,34 @@ def generate_dataset_task(dataset_id: str, attribute_definition: str):
         dataset.status = "generating"
         db.commit()
 
-        # TODO: Integrate with mood library to generate training data
-        # For now, create mock data as placeholder
         logger.info(f"Generating {dataset.num_examples} examples for dataset {dataset_id}")
 
-        # Mock implementation - replace with actual mood library integration
-        import random
-        for i in range(dataset.num_examples):
+        # Use OpenAI to generate training examples
+        if not openai_client.is_available():
+            raise ValueError("OpenAI API key not configured. Cannot generate dataset.")
+
+        # Generate examples using OpenAI
+        examples = openai_client.generate_training_examples(
+            attribute_definition=attribute_definition,
+            num_examples=dataset.num_examples,
+            model=dataset.openai_model_used or "gpt-4"
+        )
+
+        # Store examples in database
+        for example_data in examples:
             example = DatasetExample(
                 dataset_id=dataset_id,
-                text=f"Sample text {i} for attribute: {attribute_definition[:30]}...",
-                score=random.uniform(0, 5),
+                text=example_data["text"],
+                score=float(example_data["score"]),
             )
             db.add(example)
 
         dataset.status = "completed"
         db.commit()
-        logger.info(f"Dataset {dataset_id} generation completed")
+        logger.info(f"Dataset {dataset_id} generation completed with {len(examples)} examples")
 
     except Exception as e:
-        logger.error(f"Error generating dataset {dataset_id}: {str(e)}")
+        logger.error(f"Error generating dataset {dataset_id}: {str(e)}", exc_info=True)
         if dataset:
             dataset.status = "failed"
             dataset.error_message = str(e)

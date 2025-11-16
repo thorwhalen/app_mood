@@ -5,11 +5,13 @@ A full-stack web application for financial sentiment analysis using the [mood](h
 ## Features
 
 - **Define Custom Moods**: Create semantic attributes to detect specific sentiments in financial text
-- **Generate Training Data**: AI-powered dataset generation using OpenAI
-- **Train ML Models**: Automatically train and compare multiple model types
-- **Analyze Text**: Get sentiment scores for individual texts or batches
-- **Financial Headlines**: Quick analysis of current financial news
+- **Generate Training Data**: AI-powered dataset generation using OpenAI GPT-4
+- **Train ML Models**: Automatically train and compare multiple model types using mood's `MoodModelingManager`
+- **Analyze Text**: Get real sentiment scores (0-1) for individual texts or batches
+- **Financial Headlines**: Quick analysis of current financial news with sentiment scores
 - **Analysis History**: Track and visualize sentiment trends over time
+
+**✨ Phase 2 Complete**: Fully integrated with the mood library ML pipeline for real sentiment analysis.
 
 ## Architecture
 
