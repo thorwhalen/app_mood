@@ -5,6 +5,13 @@ from .analysis import AnalysisCreate, AnalysisResponse, AnalysisBatchCreate
 from .task import TaskResponse
 from .user import UserCreate, UserResponse, Token
 from .usage_quota import UsageQuotaResponse, UsageQuotaUpdate
+from .feature_flag import (
+    FeatureFlagResponse,
+    FeatureFlagUpdate,
+    FeatureConfigUpdate,
+    FeatureEnableRequest,
+    FeatureDependencyStatus,
+)
 
 __all__ = [
     "MoodCreate",
@@ -23,4 +30,9 @@ __all__ = [
     "Token",
     "UsageQuotaResponse",
     "UsageQuotaUpdate",
+    "FeatureFlagResponse",
+    "FeatureFlagUpdate",
+    "FeatureConfigUpdate",
+    "FeatureEnableRequest",
+    "FeatureDependencyStatus",
 ]

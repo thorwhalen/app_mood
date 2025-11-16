@@ -11,6 +11,7 @@ import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import AdminPage from './pages/AdminPage'
+import FeaturesPage from './pages/FeaturesPage'
 import Navigation from './components/Navigation'
 import { authService } from './services/auth'
 
@@ -91,6 +92,7 @@ function App() {
             <Route path="/headlines" element={<HeadlinesPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/features" element={<FeaturesPage />} />
           </Routes>
         </Container>
       </Box>

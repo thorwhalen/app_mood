@@ -34,6 +34,30 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Mood API...")
     init_db()
     logger.info("Database initialized")
+
+    # Initialize optional integrations
+    from .database import SessionLocal
+    from .services.feature_service import get_feature_service
+    from .integrations import sentry_integration, email_integration, webhook_integration
+
+    db = SessionLocal()
+    try:
+        # Initialize default feature flags
+        service = get_feature_service(db)
+        service.initialize_defaults()
+        logger.info("Feature flags initialized")
+
+        # Initialize optional integrations (only if enabled)
+        sentry_integration.initialize_sentry(db)
+        email_integration.initialize_email(db)
+        webhook_integration.initialize_webhooks(db)
+
+        logger.info("Optional integrations initialized")
+    except Exception as e:
+        logger.error(f"Error initializing integrations: {e}")
+    finally:
+        db.close()
+
     yield
     # Shutdown
     logger.info("Shutting down Mood API...")

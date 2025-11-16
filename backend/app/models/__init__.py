@@ -5,6 +5,7 @@ from .analysis import Analysis
 from .task import Task
 from .user import User
 from .usage_quota import UsageQuota
+from .feature_flag import FeatureFlag
 
 __all__ = [
     "Mood",
@@ -15,4 +16,5 @@ __all__ = [
     "Task",
     "User",
     "UsageQuota",
+    "FeatureFlag",
 ]

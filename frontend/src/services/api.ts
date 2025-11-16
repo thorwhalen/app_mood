@@ -105,4 +105,22 @@ export const authApi = {
   getCurrentUser: () => api.get<any>('/auth/me'),
 };
 
+// Features API
+export const featuresApi = {
+  list: (category?: string) =>
+    api.get<any[]>('/admin/features', { params: { category } }),
+  get: (featureName: string) =>
+    api.get<any>(`/admin/features/${featureName}`),
+  checkDependencies: (featureName: string) =>
+    api.get<any>(`/admin/features/${featureName}/dependencies`),
+  enable: (featureName: string, config: any) =>
+    api.post(`/admin/features/${featureName}/enable`, { config }),
+  disable: (featureName: string) =>
+    api.post(`/admin/features/${featureName}/disable`),
+  updateConfig: (featureName: string, config: any) =>
+    api.put(`/admin/features/${featureName}/config`, { config }),
+  initialize: () =>
+    api.post('/admin/features/initialize'),
+};
+
 export default api;

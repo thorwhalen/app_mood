@@ -6,6 +6,7 @@ from .models import router as models_router
 from .analysis import router as analysis_router
 from .tasks import router as tasks_router
 from .admin import router as admin_router
+from .features import router as features_router
 
 api_router = APIRouter()
 
@@ -21,3 +22,4 @@ api_router.include_router(tasks_router, prefix="/tasks", tags=["tasks"])
 
 # Admin routes (admin auth required)
 api_router.include_router(admin_router, prefix="/admin", tags=["admin"])
+api_router.include_router(features_router, prefix="/admin/features", tags=["features"])

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import {
   Box,
   Typography,
@@ -16,7 +17,10 @@ import {
   CircularProgress,
   Alert,
   Chip,
+  Button,
+  CardActions,
 } from '@mui/material'
+import { Settings } from '@mui/icons-material'
 import {
   LineChart,
   Line,
@@ -32,6 +36,8 @@ import {
 import { adminApi } from '@/services/api'
 
 export default function AdminPage() {
+  const navigate = useNavigate()
+
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => adminApi.getStats().then((res) => res.data),
@@ -89,6 +95,26 @@ export default function AdminPage() {
       <Typography variant="body1" paragraph>
         System management and user statistics.
       </Typography>
+
+      {/* Quick Actions */}
+      <Card sx={{ mb: 4, bgcolor: 'primary.main', color: 'white' }}>
+        <CardContent>
+          <Box display="flex" alignItems="center" mb={1}>
+            <Settings sx={{ mr: 1 }} />
+            <Typography variant="h6">Feature Management</Typography>
+          </Box>
+          <Typography variant="body2" paragraph sx={{ mb: 2 }}>
+            Configure optional integrations like Sentry error tracking, email notifications, webhooks, and more.
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => navigate('/admin/features')}
+          >
+            Manage Features
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* System Stats */}
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
