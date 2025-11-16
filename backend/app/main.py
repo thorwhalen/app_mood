@@ -2,17 +2,19 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 import logging
 import time
 
 from .config import settings
 from .database import init_db, engine
 from .api import api_router
+from .utils.metrics import PrometheusMiddleware
 
 # Configure logging
 logging.basicConfig(
@@ -50,6 +52,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Security middleware
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # Configure in production
+
+# Prometheus metrics middleware
+app.add_middleware(PrometheusMiddleware)
 
 # CORS middleware
 app.add_middleware(
@@ -135,25 +140,9 @@ def liveness_check():
 @app.get("/metrics")
 def metrics():
     """
-    Basic metrics endpoint for monitoring.
+    Prometheus metrics endpoint.
 
-    Returns application metrics in a simple format.
+    Returns metrics in Prometheus text format for scraping.
     """
-    from sqlalchemy import func
-    from .database import SessionLocal
-    from .models import Mood, Dataset, Analysis
-
-    db = SessionLocal()
-    try:
-        mood_count = db.query(func.count(Mood.id)).scalar()
-        dataset_count = db.query(func.count(Dataset.id)).scalar()
-        analysis_count = db.query(func.count(Analysis.id)).scalar()
-
-        return {
-            "moods_total": mood_count,
-            "datasets_total": dataset_count,
-            "analyses_total": analysis_count,
-            "version": settings.app_version,
-        }
-    finally:
-        db.close()
+    metrics_data = generate_latest()
+    return Response(content=metrics_data, media_type=CONTENT_TYPE_LATEST)

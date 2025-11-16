@@ -91,6 +91,12 @@ export const adminApi = {
     api.patch(`/admin/users/${userId}/quota`, quotaData),
   toggleUserActive: (userId: string, active: boolean) =>
     api.patch(`/admin/users/${userId}/activate`, null, { params: { active } }),
+  getAnalysesOverTime: (days = 30) =>
+    api.get<any>('/admin/analytics/analyses-over-time', { params: { days } }),
+  getUserGrowth: (days = 30) =>
+    api.get<any>('/admin/analytics/user-growth', { params: { days } }),
+  getTopMoods: (limit = 10) =>
+    api.get<any>('/admin/analytics/top-moods', { params: { limit } }),
 };
 
 // Auth/User API

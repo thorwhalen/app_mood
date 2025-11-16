@@ -69,6 +69,24 @@ services:
       - redis
     command: celery -A app.tasks.celery_app worker --loglevel=info
 
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://mood_user:mood_pass@db:5432/mood_db
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/data
+    depends_on:
+      - db
+      - redis
+    command: celery -A app.tasks.celery_app beat --loglevel=info
+
   frontend:
     build:
       context: ./frontend
@@ -83,6 +101,35 @@ services:
     depends_on:
       - backend
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
   backend_data:
+  prometheus_data:
+  grafana_data:

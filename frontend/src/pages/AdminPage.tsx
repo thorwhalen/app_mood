@@ -17,6 +17,18 @@ import {
   Alert,
   Chip,
 } from '@mui/material'
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import { adminApi } from '@/services/api'
 
 export default function AdminPage() {
@@ -30,6 +42,21 @@ export default function AdminPage() {
     queryFn: () => adminApi.getUsers().then((res) => res.data),
   })
 
+  const { data: analysesData } = useQuery({
+    queryKey: ['admin-analyses-over-time'],
+    queryFn: () => adminApi.getAnalysesOverTime(30).then((res) => res.data),
+  })
+
+  const { data: userGrowthData } = useQuery({
+    queryKey: ['admin-user-growth'],
+    queryFn: () => adminApi.getUserGrowth(30).then((res) => res.data),
+  })
+
+  const { data: topMoodsData } = useQuery({
+    queryKey: ['admin-top-moods'],
+    queryFn: () => adminApi.getTopMoods(10).then((res) => res.data),
+  })
+
   if (statsLoading) {
     return (
       <Box display="flex" justifyContent="center" p={4}>
@@ -37,6 +64,22 @@ export default function AdminPage() {
       </Box>
     )
   }
+
+  // Prepare chart data
+  const analysesChartData = analysesData?.labels?.map((label: string, idx: number) => ({
+    date: label,
+    count: analysesData.values[idx],
+  })) || []
+
+  const userGrowthChartData = userGrowthData?.labels?.map((label: string, idx: number) => ({
+    date: label,
+    count: userGrowthData.values[idx],
+  })) || []
+
+  const topMoodsChartData = topMoodsData?.labels?.map((label: string, idx: number) => ({
+    mood: label,
+    count: topMoodsData.values[idx],
+  })) || []
 
   return (
     <Box>
@@ -89,6 +132,86 @@ export default function AdminPage() {
                 Analyses Today
               </Typography>
               <Typography variant="h4">{stats?.analyses_today || 0}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Analytics Charts */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+        Analytics
+      </Typography>
+
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Analyses Over Time */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Analyses Over Time (Last 30 Days)
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={analysesChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  />
+                  <YAxis />
+                  <Tooltip
+                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" stroke="#8884d8" name="Analyses" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* User Growth */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                User Growth (Last 30 Days)
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={userGrowthChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  />
+                  <YAxis />
+                  <Tooltip
+                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" stroke="#82ca9d" name="Total Users" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Top Moods */}
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Top 10 Most Popular Moods
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topMoodsChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mood" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#8884d8" name="Analysis Count" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
