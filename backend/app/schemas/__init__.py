@@ -4,6 +4,7 @@ from .model import MLModelResponse
 from .analysis import AnalysisCreate, AnalysisResponse, AnalysisBatchCreate
 from .task import TaskResponse
 from .user import UserCreate, UserResponse, Token
+from .usage_quota import UsageQuotaResponse, UsageQuotaUpdate
 
 __all__ = [
     "MoodCreate",
@@ -20,4 +21,6 @@ __all__ = [
     "UserCreate",
     "UserResponse",
     "Token",
+    "UsageQuotaResponse",
+    "UsageQuotaUpdate",
 ]

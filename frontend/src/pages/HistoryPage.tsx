@@ -17,11 +17,14 @@ import {
   CircularProgress,
   Alert,
   Chip,
+  Button,
 } from '@mui/material'
+import { Download } from '@mui/icons-material'
 import { moodsApi, analysisApi } from '@/services/api'
 
 export default function HistoryPage() {
   const [selectedMoodId, setSelectedMoodId] = useState<string>('')
+  const [exporting, setExporting] = useState(false)
 
   const { data: moods } = useQuery({
     queryKey: ['moods'],
@@ -46,6 +49,27 @@ export default function HistoryPage() {
     return moods?.find((m) => m.id === moodId)?.name || moodId
   }
 
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const response = await analysisApi.exportCsv(selectedMoodId || undefined)
+      const blob = new Blob([response.data], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `mood_analyses_${selectedMoodId || 'all'}.csv`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export data. Please try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
@@ -55,21 +79,32 @@ export default function HistoryPage() {
         Browse past sentiment analyses.
       </Typography>
 
-      <FormControl sx={{ minWidth: 200, mb: 3 }}>
-        <InputLabel>Filter by Mood</InputLabel>
-        <Select
-          value={selectedMoodId}
-          label="Filter by Mood"
-          onChange={(e) => setSelectedMoodId(e.target.value)}
+      <Box display="flex" gap={2} mb={3} alignItems="center">
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Filter by Mood</InputLabel>
+          <Select
+            value={selectedMoodId}
+            label="Filter by Mood"
+            onChange={(e) => setSelectedMoodId(e.target.value)}
+          >
+            <MenuItem value="">All Moods</MenuItem>
+            {moods?.map((mood) => (
+              <MenuItem key={mood.id} value={mood.id}>
+                {mood.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="outlined"
+          startIcon={<Download />}
+          onClick={handleExport}
+          disabled={!analyses || analyses.length === 0 || exporting}
         >
-          <MenuItem value="">All Moods</MenuItem>
-          {moods?.map((mood) => (
-            <MenuItem key={mood.id} value={mood.id}>
-              {mood.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          {exporting ? 'Exporting...' : 'Export CSV'}
+        </Button>
+      </Box>
 
       {isLoading ? (
         <Box display="flex" justifyContent="center" p={4}>

@@ -21,3 +21,4 @@ class User(Base):
     # Relationships
     moods = relationship("Mood", back_populates="user", cascade="all, delete-orphan")
     analyses = relationship("Analysis", back_populates="user", cascade="all, delete-orphan")
+    usage_quota = relationship("UsageQuota", back_populates="user", uselist=False, cascade="all, delete-orphan")

@@ -70,11 +70,33 @@ export const analysisApi = {
       params: { mood_id: moodId, skip, limit },
     }),
   headlines: () => api.get<HeadlineAnalysis[]>('/analysis/headlines'),
+  exportCsv: (moodId?: string) =>
+    api.get('/analysis/export/csv', {
+      params: { mood_id: moodId },
+      responseType: 'blob',
+    }),
 };
 
 // Tasks API
 export const tasksApi = {
   get: (id: string) => api.get<Task>(`/tasks/${id}`),
+};
+
+// Admin API
+export const adminApi = {
+  getStats: () => api.get<any>('/admin/stats'),
+  getUsers: (skip = 0, limit = 100) =>
+    api.get<any[]>('/admin/users', { params: { skip, limit } }),
+  updateUserQuota: (userId: string, quotaData: any) =>
+    api.patch(`/admin/users/${userId}/quota`, quotaData),
+  toggleUserActive: (userId: string, active: boolean) =>
+    api.patch(`/admin/users/${userId}/activate`, null, { params: { active } }),
+};
+
+// Auth/User API
+export const authApi = {
+  getUsage: () => api.get<any>('/auth/usage'),
+  getCurrentUser: () => api.get<any>('/auth/me'),
 };
 
 export default api;

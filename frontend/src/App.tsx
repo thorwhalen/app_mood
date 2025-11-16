@@ -10,6 +10,7 @@ import HeadlinesPage from './pages/HeadlinesPage'
 import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import AdminPage from './pages/AdminPage'
 import Navigation from './components/Navigation'
 import { authService } from './services/auth'
 
@@ -89,6 +90,7 @@ function App() {
             <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/headlines" element={<HeadlinesPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </Container>
       </Box>

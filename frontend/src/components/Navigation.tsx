@@ -12,6 +12,7 @@ export default function Navigation() {
     if (path === '/analysis') return 2
     if (path === '/headlines') return 3
     if (path === '/history') return 4
+    if (path === '/admin') return 5
     return 0
   }
 
@@ -23,6 +24,7 @@ export default function Navigation() {
         <Tab label="Analysis" component={Link} to="/analysis" />
         <Tab label="Headlines" component={Link} to="/headlines" />
         <Tab label="History" component={Link} to="/history" />
+        <Tab label="Admin" component={Link} to="/admin" />
       </Tabs>
     </Box>
   )
